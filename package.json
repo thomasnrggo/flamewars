@@ -7,9 +7,9 @@
     "node": "15.x"
   },
   "scripts": {
-    "dev": "next",
+    "dev": "node server.js -p $PORT",
     "build": "next build",
-    "start": "next start -p $PORT"
+    "start": "node server.js -p $PORT"
   },
   "keywords": [],
   "author": "",

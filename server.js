@@ -6,7 +6,7 @@ const next = require('next')
 const dev = process.env.NODE_ENV !== 'production'
 const nextApp = next({ dev })
 const nextHandler = nextApp.getRequestHandler()
-
+const port = process.env.PORT || 3000;
 const messages = []
 let vote = {}
 
@@ -114,7 +114,7 @@ nextApp.prepare().then(() => {
 		return nextHandler(req, res)
 	})
 
-	server.listen(3000, (err) => {
+	server.listen(port, (err) => {
 		if (err) process.exit(0)
 		console.log('> Ready on http://localhost:3000')
 	})
