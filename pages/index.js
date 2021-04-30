@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import io from "socket.io-client";
-// const ENDPOINT = 'http://localhost:3000';
-const ENDPOINT = 'https://flamewars-master.herokuapp.com';
+const ENDPOINT = 'http://localhost:3000';
+// const ENDPOINT = 'https://flamewars-master.herokuapp.com';
 
 
 
@@ -17,7 +17,7 @@ export default function Homepage() {
         // setLocalMessages(messages)
 
         const getData = async () => {
-            let res = await fetch('https://flamewars-master.herokuapp.com/messages')
+            let res = await fetch(`${ENDPOINT}/messages`)
             let messages = await res.json();
             console.log(messages);
             return messages
@@ -34,10 +34,6 @@ export default function Homepage() {
 
     let handleChange = e => {
         setField(e.target.value)
-    }
-
-    let handleUsername = e =>{
-        setUser(e.target.value)
     }
 
     let handleSubmit  = e => {
@@ -77,13 +73,6 @@ export default function Homepage() {
                 />
                 <button>Enviar</button>
             </form>
-
-            {/* <input
-                onChange={handleUsername}
-                type='text'
-                placeholder='Escribe algo'
-                value={user}
-            /> */}
         </div>
     )
 }
