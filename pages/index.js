@@ -11,7 +11,7 @@ export default function Homepage({messages}) {
 
     useEffect(() => {
         socket.on("message", handleMessage);
-        setLocalMessages(messages)
+        setLocalMessages(messages || [])
     }, [])
 
     let handleMessage = msg => {
@@ -74,11 +74,11 @@ export default function Homepage({messages}) {
     )
 }
 
-export async function getStaticProps(context) {
-    let res = await fetch('http://localhost:3000/messages')
-    let messages = await res.json();
+// export async function getStaticProps(context) {
+//     let res = await fetch('http://localhost:3000/messages')
+//     let messages = await res.json();
 
-    return {
-      props: { messages }, // will be passed to the page component as props
-    }
-}
+//     return {
+//       props: { messages }, // will be passed to the page component as props
+//     }
+// }
