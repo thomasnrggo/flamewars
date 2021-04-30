@@ -7,6 +7,7 @@ const dev = process.env.NODE_ENV !== 'production'
 const nextApp = next({ dev })
 const nextHandler = nextApp.getRequestHandler()
 const port = process.env.PORT || 3000;
+
 const messages = []
 let vote = {}
 
@@ -56,6 +57,7 @@ io.on('connection', socket => {
 			}
 			socket.broadcast.emit('message', votingCreate )
 			socket.broadcast.emit('message', votingUsing )
+			socket.broadcast.emit('vote', vote)
 		} else {
 			let message = {
 				id: new Date().getTime(),
@@ -79,6 +81,7 @@ io.on('connection', socket => {
 		}
 		messages.push(voteMessage)
 		socket.broadcast.emit('message', voteMessage )
+		socket.broadcast.emit('vote', vote)
 	})
 
 	socket.on('close', data => {
@@ -91,6 +94,7 @@ io.on('connection', socket => {
 			vote = {}
 			messages.push(voteMessage)
 			socket.broadcast.emit('message', voteMessage )
+			socket.broadcast.emit('vote', vote)
 		} else {
 			let voteMessage = {
 				id: new Date().getTime(),

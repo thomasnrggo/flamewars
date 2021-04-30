@@ -10,23 +10,59 @@ export default function Homepage() {
     const [localMessages, setLocalMessages] = useState([])
     const [field, setField] = useState('')
     const [user, setUser] = useState('')
+    const [votes, setVotes] = useState(null)
+
+    const getMessages = async () => {
+        let res = await fetch(`${ENDPOINT}/messages`)
+        let messages = await res.json();
+        console.log('getMessages',messages);
+        return messages
+    }
+
+    const getVotes = async () => {
+        let res = await fetch(`${ENDPOINT}/vote`)
+        let votes = await res.json();
+        console.log('getVotes',votes);
+        return votes
+    }
 
     useEffect(() => {
         socket.on("message", handleMessage);
+        socket.on("vote", handleVotes);
+
         // console.log(messages);
         // setLocalMessages(messages)
-
-        const getData = async () => {
-            let res = await fetch(`${ENDPOINT}/messages`)
-            let messages = await res.json();
-            console.log(messages);
-            return messages
-        }
-        getData()
+        getMessages()
         .then(res => {
             setLocalMessages(res)
         })
+        .catch(err => {
+            console.error(err);
+        })
+
+        getVotes()
+        .then(res => {
+            setVotes(res)
+        })
+        .catch(err => {
+            console.error(err);
+        })
     }, [])
+
+    // useEffect(() => {
+    //     socket.on("vote", handleVotes);
+    //     getVotes()
+    //     .then(res => {
+    //         setVotes(res)
+    //     })
+    //     .catch(err => {
+    //         console.error(err);
+    //     })
+    // }, [localMessages])
+
+    let handleVotes = vote => {
+        setVotes(old => vote)
+    }
 
     let handleMessage = msg => {
         setLocalMessages(oldMessages => [...oldMessages, msg])
@@ -61,6 +97,7 @@ export default function Homepage() {
 
     return (
         <div>
+            {votes && votes.title ? <h2>{votes.title} {votes.votesA}-{votes.votesB}</h2> : null}
             {localMessages ? localMessages.map(message => {
                 return <li key={message.id}>{message.user} {`=>`} {message.value}</li>
             }): null}
