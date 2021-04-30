@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import io from "socket.io-client";
-const ENDPOINT = 'http://localhost:3000';
+// const ENDPOINT = 'http://localhost:3000';
+const ENDPOINT = 'https://flamewars-master.herokuapp.com';
+
 
 
 export default function Homepage({messages}) {
@@ -11,7 +13,15 @@ export default function Homepage({messages}) {
 
     useEffect(() => {
         socket.on("message", handleMessage);
-        setLocalMessages(messages || [])
+        setLocalMessages(messages)
+
+        // const getData = async () => {
+        //     let res = await fetch('https://flamewars-master.herokuapp.com/messages')
+        //     let messages = await res.json();
+        //     console.log(messages);
+        //     return messages
+        // }
+        // getData()
     }, [])
 
     let handleMessage = msg => {
@@ -74,11 +84,11 @@ export default function Homepage({messages}) {
     )
 }
 
-// export async function getStaticProps(context) {
-//     let res = await fetch('http://localhost:3000/messages')
-//     let messages = await res.json();
+export async function getStaticProps(context) {
+    let res = await fetch(`${ENDPOINT}/messages`)
+    let messages = await res.json();
 
-//     return {
-//       props: { messages }, // will be passed to the page component as props
-//     }
-// }
+    return {
+      props: { messages }, // will be passed to the page component as props
+    }
+}
