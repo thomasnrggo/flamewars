@@ -3,8 +3,6 @@ import io from "socket.io-client";
 const ENDPOINT = 'http://localhost:3000';
 // const ENDPOINT = 'https://flamewars-master.herokuapp.com';
 
-
-
 export default function Homepage() {
     const socket = io(ENDPOINT);
     const [localMessages, setLocalMessages] = useState([])
@@ -27,8 +25,10 @@ export default function Homepage() {
     }
 
     useEffect(() => {
-        socket.on("message", handleMessage);
-        socket.on("vote", handleVotes);
+        
+        socket
+        .on("message", handleMessage)
+        .on("vote", handleVotes)
 
         // console.log(messages);
         // setLocalMessages(messages)
@@ -61,10 +61,13 @@ export default function Homepage() {
     // }, [localMessages])
 
     let handleVotes = vote => {
+        console.log('handleVotes');
         setVotes(old => vote)
     }
 
     let handleMessage = msg => {
+        console.log('handleMessage');
+
         setLocalMessages(oldMessages => [...oldMessages, msg])
     }
 

@@ -1,6 +1,7 @@
 const app = require('express')()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
+const { log } = require('console')
 const next = require('next')
 
 const dev = process.env.NODE_ENV !== 'production'
@@ -10,8 +11,9 @@ const port = process.env.PORT || 3000;
 
 const messages = []
 let vote = {}
+let users = []
 
-let getVotingOpction = str => {
+let getVotingOption = str => {
 	let rmCreate = str.replace('/create ', '')
 	let rmVs = rmCreate.replace(' vs', '')
 	let wordsArray = rmVs.split(/(\s+)/);
@@ -20,7 +22,7 @@ let getVotingOpction = str => {
 }
 
 io.on('connection', socket => {
-	// console.log(`Client ${socket.id} connected`);
+	console.log(socket.id);
 
 	socket.on('message', (data) => {
 		console.log(' message =>',data)
@@ -32,7 +34,7 @@ io.on('connection', socket => {
 		console.log(' create =>', data)
 		if(!vote.title){
 			let command = data.command.toLowerCase()
-			let options = getVotingOpction(command)
+			let options = getVotingOption(command)
 
 			let title = command.replace('/create ', '')
 			let optionA =  options[0]
@@ -102,6 +104,10 @@ io.on('connection', socket => {
 			}
 			socket.broadcast.emit('message', voteMessage )
 		}
+	})
+
+	socket.on('disconnect', () => {
+		console.log('disconneted', socket.id);
 	})
 })
 
