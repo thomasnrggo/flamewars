@@ -1,0 +1,31 @@
+.chat {
+  .jumbotron {
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+  }
+
+  &__messages {
+    margin-bottom: 2rem;
+    width: 100%;
+    height: 500px;
+    overflow-y: scroll;
+  }
+
+  &__bubbles {
+    width: 300px;
+
+    .close {
+      display: none;
+    }
+
+    &.owner {
+      margin-left: auto;
+    }
+  }
+}
+
+section,
+.footer {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
