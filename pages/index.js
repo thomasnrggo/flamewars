@@ -24,7 +24,14 @@ export default function Homepage() {
     color: "#007bff",
     bgColor: "hsla(211, 100%, 95%, 0.85)",
   });
-  const [votes, setVotes] = useState(null);
+  const [votes, setVotes] = useState({
+    title: "",
+    optionA: "",
+    optionB: "",
+    votesA: 0,
+    votesB: 0,
+    votants: [],
+  });
   const [users, setUsers] = useState([]);
   const colorset = [
     "#007bff",
@@ -84,7 +91,7 @@ export default function Homepage() {
   };
 
   let handleVotes = (vote) => {
-    setVotes((old) => vote);
+    setVotes(vote);
     setField("");
   };
 
@@ -151,7 +158,8 @@ export default function Homepage() {
     } else if (field.includes("#")) {
       if (votes && votes.title) {
         if (field.includes(votes.optionA) || field.includes(votes.optionB)) {
-          socket.emit("vote", { vote: field });
+          socket.emit("vote", { vote: field, username: username });
+          setField("");
         } else {
           socket.emit("message", data);
           setField("");

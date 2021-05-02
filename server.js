@@ -77,6 +77,7 @@ io.on("connection", (socket) => {
         optionB: optionB,
         votesA: 0,
         votesB: 0,
+        votants: [],
       };
 
       socket.broadcast.emit("message", votingCreate);
@@ -96,13 +97,41 @@ io.on("connection", (socket) => {
 
   socket.on("vote", (data) => {
     let userVote = data.vote;
-    if (userVote.includes(`${vote.optionA}`)) {
-      vote.votesA++;
-    } else {
-      vote.votesB++;
-    }
+    const { username } = data;
 
-    socket.broadcast.emit("vote", vote);
+    if (vote.votants?.find((item) => username === item) === undefined) {
+      if (userVote.includes(`${vote.optionA}`)) {
+        console.log(
+          `🔥 Flamewars bot 🔥 => ${username} voted for ${vote.optionA}`
+        );
+
+        vote.votants.push(username);
+        vote.votesA++;
+      } else {
+        console.log(
+          `🔥 Flamewars bot 🔥 => ${username} voted for ${vote.optionB}`
+        );
+
+        vote.votants.push(username);
+        vote.votesB++;
+      }
+
+      socket.broadcast.emit("vote", vote);
+      console.log(
+        `🔥 Flamewars bot 🔥 => ${vote.optionA}: ${vote.votesA} vs ${vote.optionB}: ${vote.votesB}`
+      );
+      console.log(
+        `🔥 Flamewars bot 🔥 => Users that already voted: ${vote.votants}`
+      );
+    } else {
+      socket.broadcast.emit("message", {
+        username: "⚠ Flamewars bot ⚠",
+        color: "#856404",
+        bgColor: "#fff3cd",
+        message: `${username} has already voted!`,
+        date: new Date(),
+      });
+    }
   });
 
   socket.on("close", (data) => {
@@ -122,6 +151,11 @@ io.on("connection", (socket) => {
       messages.push(voteMessage);
       socket.broadcast.emit("message", voteMessage);
       socket.broadcast.emit("vote", vote);
+      console.log(
+        `🔥 Flamewars bot 🔥 => The winner of the votation is 🎊 ${
+          results.votesA > results.votesB ? results.optionA : results.optionB
+        }!!!`
+      );
     } else {
       let voteMessage = {
         username: "⚠ Flamewars bot ⚠",
