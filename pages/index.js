@@ -1,6 +1,7 @@
 import React, { useEffect, useState, Fragment } from "react";
 import { Form, Button, Col, Jumbotron, Toast, Modal } from "react-bootstrap";
 import { BlockPicker } from "react-color";
+import { formatDistance } from "date-fns";
 import io from "socket.io-client";
 const ENDPOINT = "http://localhost:3000";
 // const ENDPOINT = 'https://flamewars-master.herokuapp.com';
@@ -114,7 +115,7 @@ export default function Homepage() {
       color,
       bgColor,
       message: field,
-      date: "01/05/21",
+      date: new Date(),
     };
 
     if (field.includes("/create")) {
@@ -124,7 +125,7 @@ export default function Homepage() {
       socket.emit("close", {});
     } else if (field.includes("#")) {
       socket.emit("vote", { vote: field });
-    } else {
+    } else if (field) {
       socket.emit("message", data);
       setField("");
     }
@@ -135,17 +136,13 @@ export default function Homepage() {
 
     if (username && color) {
       setShowModal(false);
-      setLocalMessages([
-        ...localMessages,
-        {
-          username: "🔥 Flamewars bot 🔥",
-          color: "hsla(208, 7%, 46%, 1)",
-          bgColor: "hsla(208, 7%, 95%, 0.85)",
-          owner: false,
-          message: `${username} has entered the chat`,
-          date: "01/05/21",
-        },
-      ]);
+      socket.emit("message", {
+        username: "🔥 Flamewars bot 🔥",
+        color: "hsla(208, 7%, 46%, 1)",
+        bgColor: "hsla(208, 7%, 95%, 0.85)",
+        message: `${username} has entered the chat`,
+        date: new Date(),
+      });
     }
   }
 
@@ -157,6 +154,10 @@ export default function Homepage() {
       color: color.hex,
       bgColor: `hsla(${hsl.h}, ${hsl.s}%, 90%, 0.9)`,
     });
+  }
+
+  function getDateDistance(date) {
+    return formatDistance(new Date(date), new Date());
   }
 
   return (
@@ -229,7 +230,7 @@ export default function Homepage() {
                 >
                   <strong className="mr-auto">{msg.username}</strong>
 
-                  <small>{msg.date}</small>
+                  <small>{getDateDistance(msg.date)} ago</small>
                 </Toast.Header>
 
                 <Toast.Body

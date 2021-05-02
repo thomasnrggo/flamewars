@@ -22,7 +22,7 @@ let getVotingOption = (str) => {
 };
 
 io.on("connection", (socket) => {
-  // console.log(socket.id);
+  console.log("a user connected", socket.id);
 
   socket.on("message", (data) => {
     const { username, message } = data;
@@ -110,8 +110,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    // console.log("disconneted", socket.id);
+  socket.on("disconnect", (data) => {
+    console.log("a user disconneted", socket.id);
   });
 });
 
