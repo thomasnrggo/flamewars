@@ -8,10 +8,30 @@ const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev });
 const nextHandler = nextApp.getRequestHandler();
 const port = process.env.PORT || 3000;
+const bodyParser = require("body-parser");
+const bcrypt = require("bcryptjs");
 
 const messages = [];
 let vote = {};
 let users = [];
+let usersDB = [
+  {
+    id: 1,
+    username: "Juanda 🐵",
+    password: "$2a$10$OhW7fBzBzsWELepU9lPZHu2tjgrazumGoewqKghehvyIJTEIU/r7K",
+    role: "admin",
+    color: "#710E63",
+    bgColor: "#F6E2F3",
+  },
+  {
+    id: 2,
+    username: "Anthony 🐥",
+    password: "$2a$10$OhW7fBzBzsWELepU9lPZHu2tjgrazumGoewqKghehvyIJTEIU/r7K",
+    role: "member",
+    color: "#9B5E13",
+    bgColor: "#FEF2E3",
+  },
+];
 
 let getVotingOption = (str) => {
   let rmCreate = str.replace("/create ", "");
@@ -188,6 +208,40 @@ io.on("connection", (socket) => {
 });
 
 nextApp.prepare().then(() => {
+  app.use(bodyParser.json());
+
+  app.post("/login", (req, res) => {
+    const user = req.body;
+    const userExists = usersDB.find((item) => user.username === item.username);
+
+    if (userExists) {
+      // const salt = bcrypt.genSaltSync(10);
+      // const hash = bcrypt.hashSync(user.password, salt);
+
+      const isPasswdordCorrect = bcrypt.compareSync(
+        user.password,
+        userExists.password
+      );
+
+      if (isPasswdordCorrect) {
+        res.status(201).send({
+          message: "User authenticated",
+          user: {
+            username: userExists.username,
+            color: userExists.color,
+            bgColor: userExists.bgColor,
+          },
+        });
+      } else {
+        res.status(400).send("The password is incorrect");
+      }
+    } else {
+      res.status(400).send("The user does not exist.");
+    }
+
+    // res.status(201).send("bar");
+  });
+
   app.get("/users", (req, res) => {
     res.json(users);
   });

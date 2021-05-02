@@ -1,24 +1,39 @@
 import React, { useEffect, useState, Fragment } from "react";
-import { Form, Button, Jumbotron, Toast, Modal, Badge } from "react-bootstrap";
+import axios from "axios";
+import {
+  Form,
+  Button,
+  Jumbotron,
+  Toast,
+  Modal,
+  Badge,
+  Alert,
+} from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
 import { BlockPicker } from "react-color";
 import { formatDistance } from "date-fns";
+import jwt from "jsonwebtoken";
+import cookie from "../services/cookieService";
 import io from "socket.io-client";
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = process.env.BASE_URL;
+const JWT_SECRET = process.env.JWT_SECRET;
 // const ENDPOINT = 'https://flamewars-master.herokuapp.com';
 
 export default function Homepage() {
   const socket = io(ENDPOINT);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertData, setAlertData] = useState("");
   const [showModal, setShowModal] = useState(true);
+  const [switchModal, setSwitchModal] = useState(true);
   const [field, setField] = useState("");
   const [localMessages, setLocalMessages] = useState([]);
   const [login, setLogin] = useState({
     username: "",
-    color: "#007bff",
-    bgColor: "hsla(211, 100%, 95%, 0.85)",
+    password: "",
+    // color: "#007bff",
+    // bgColor: "hsla(211, 100%, 95%, 0.85)",
   });
-  const [admin, setAdmin] = useState({
-    email: "",
+  const [signin, setSignin] = useState({
     username: "",
     password: "",
     color: "#007bff",
@@ -140,7 +155,8 @@ export default function Homepage() {
 
   function handleChatSubmit(event) {
     event.preventDefault();
-    const { username, color, bgColor } = login;
+    const { username } = login;
+    const { color, bgColor } = users.find((user) => username === user.username);
     const data = {
       username,
       color,
@@ -175,25 +191,46 @@ export default function Homepage() {
   }
 
   function handleLoginSubmit() {
-    const { username, color, bgColor } = login;
+    axios({
+      url: `${ENDPOINT}/login`,
+      method: "POST",
+      data: { ...login },
+    })
+      .then((response) => {
+        setShowAlert(false);
 
-    if (username && color) {
-      setShowModal(false);
-      socket
-        .emit("message", {
-          username: "🔥 Flamewars bot 🔥",
-          color: "#0c5460",
-          bgColor: "#d1ecf1",
-          message: `${username} has entered the chat`,
-          date: new Date(),
-        })
-        .emit("register", {
-          username,
-          color,
-          bgColor,
+        const { user } = response.data;
+        const token = jwt.sign({ username: user.username }, JWT_SECRET);
+        const date = new Date();
+        date.setTime(date.getTime() + 60 * 24 * 60 * 1000);
+
+        cookie.set("token", token, {
+          path: "/",
+          expires: date,
         });
-    }
+
+        setShowModal(false);
+        socket
+          .emit("message", {
+            username: "🔥 Flamewars bot 🔥",
+            color: "#0c5460",
+            bgColor: "#d1ecf1",
+            message: `${user.username} has entered the chat`,
+            date: new Date(),
+          })
+          .emit("register", {
+            username: user.username,
+            color: user.color,
+            bgColor: user.bgColor,
+          });
+      })
+      .catch((error) => {
+        setShowAlert(true);
+        setAlertData("Error al iniciar sesión");
+      });
   }
+
+  function handleSigninSubmit() {}
 
   function handleColor(color, event) {
     const { hsl } = color;
@@ -217,43 +254,107 @@ export default function Homepage() {
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header>
-          <Modal.Title>Log In</Modal.Title>
-        </Modal.Header>
+        {switchModal ? (
+          <>
+            <Modal.Header>
+              <Modal.Title>Log In</Modal.Title>
+            </Modal.Header>
 
-        <Modal.Body>
-          <Form.Group controlId="username">
-            <Form.Label>Username</Form.Label>
+            <Modal.Body>
+              <Form.Group controlId="username">
+                <Form.Label>Username</Form.Label>
 
-            <Form.Control
-              name="username"
-              type="text"
-              placeholder="Enter your username"
-              value={login.username}
-              onChange={() => handleChange(event, "user")}
-            />
-          </Form.Group>
+                <Form.Control
+                  name="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={login.username}
+                  onChange={() => handleChange(event, "user")}
+                />
+              </Form.Group>
 
-          <Form.Group controlId="color">
-            <Form.Label>Color</Form.Label>
+              <Form.Group controlId="password">
+                <Form.Label>Password</Form.Label>
 
-            <BlockPicker
-              color={login.color}
-              colors={colorset}
-              onChangeComplete={handleColor}
-            />
+                <Form.Control
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  value={login.password}
+                  onChange={() => handleChange(event, "user")}
+                />
+              </Form.Group>
+            </Modal.Body>
 
-            <Form.Text className="text-muted">
-              This will be the color of your message bubbles.
-            </Form.Text>
-          </Form.Group>
-        </Modal.Body>
+            {showAlert ? <Alert variant="danger">{alertData}</Alert> : ""}
 
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleLoginSubmit}>
-            Enter
-          </Button>
-        </Modal.Footer>
+            <Modal.Footer>
+              <Button variant="link" onClick={() => setSwitchModal(false)}>
+                Sign In
+              </Button>
+
+              <Button variant="primary" onClick={handleLoginSubmit}>
+                Log In
+              </Button>
+            </Modal.Footer>
+          </>
+        ) : (
+          <>
+            <Modal.Header>
+              <Modal.Title>Sign In</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <Form.Group controlId="username">
+                <Form.Label>Username</Form.Label>
+
+                <Form.Control
+                  name="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={signin.username}
+                  onChange={() => handleChange(event, "user")}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="password">
+                <Form.Label>Password</Form.Label>
+
+                <Form.Control
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  value={signin.password}
+                  onChange={() => handleChange(event, "user")}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="color">
+                <Form.Label>Color</Form.Label>
+
+                <BlockPicker
+                  color={signin.color}
+                  colors={colorset}
+                  onChangeComplete={handleColor}
+                />
+
+                <Form.Text className="text-muted">
+                  This will be the color of your message bubbles.
+                </Form.Text>
+              </Form.Group>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant="link" onClick={() => setSwitchModal(true)}>
+                Log In
+              </Button>
+
+              <Button variant="primary" onClick={handleSigninSubmit}>
+                Sign In
+              </Button>
+            </Modal.Footer>
+          </>
+        )}
       </Modal>
 
       <section className="chat">
