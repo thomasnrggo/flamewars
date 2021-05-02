@@ -8,6 +8,7 @@ import {
   Modal,
   Badge,
 } from "react-bootstrap";
+import { Bar } from "react-chartjs-2";
 import { BlockPicker } from "react-color";
 import { formatDistance } from "date-fns";
 import io from "socket.io-client";
@@ -243,12 +244,6 @@ export default function Homepage() {
         </Modal.Footer>
       </Modal>
 
-      {votes && votes.title ? (
-        <h2>
-          {votes.title} {votes.votesA}-{votes.votesB}
-        </h2>
-      ) : null}
-
       <section className="chat">
         <div className="chat__users">
           <p className="chat__label">
@@ -271,50 +266,89 @@ export default function Homepage() {
         </div>
 
         <Jumbotron>
-          <div className="chat__messages">
-            {localMessages.map((msg, index) => (
-              <Toast
-                key={`message-${index}`}
-                className={`chat__bubbles ${
-                  msg.username === login.username ? "owner" : ""
-                }`}
-              >
-                <Toast.Header
-                  style={{ color: msg.color, backgroundColor: msg.bgColor }}
-                >
-                  <strong className="mr-auto">{msg.username}</strong>
+          <div className="chat__wrapper">
+            <div
+              className={`chat__chart ${votes && votes.title ? "show" : ""}`}
+            >
+              {votes && votes.title ? (
+                <Bar
+                  data={{
+                    labels: [votes.optionA, votes.optionB],
+                    datasets: [
+                      {
+                        label: "# of votes",
+                        data: [votes.votesA, votes.votesB],
+                        backgroundColor: [
+                          "rgba(153, 102, 255, 0.2)",
+                          "rgba(255, 159, 64, 0.2)",
+                        ],
+                        borderColor: [
+                          "rgba(153, 102, 255, 1)",
+                          "rgba(255, 159, 64, 1)",
+                        ],
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                  options={{
+                    scales: {
+                      yAxes: [
+                        {
+                          ticks: {
+                            beginAtZero: true,
+                          },
+                        },
+                      ],
+                    },
+                  }}
+                />
+              ) : (
+                ""
+              )}
+            </div>
 
-                  <small>{getDateDistance(msg.date)} ago</small>
-                </Toast.Header>
-
-                <Toast.Body
-                  style={{ color: msg.color, backgroundColor: msg.bgColor }}
+            <div className="chat__messages">
+              {localMessages.map((msg, index) => (
+                <Toast
+                  key={`message-${index}`}
+                  className={`chat__bubbles ${
+                    msg.username === login.username ? "owner" : ""
+                  }`}
                 >
-                  {msg.message}
-                </Toast.Body>
-              </Toast>
-            ))}
+                  <Toast.Header
+                    style={{ color: msg.color, backgroundColor: msg.bgColor }}
+                  >
+                    <strong className="mr-auto">{msg.username}</strong>
+
+                    <small>{getDateDistance(msg.date)} ago</small>
+                  </Toast.Header>
+
+                  <Toast.Body
+                    style={{ color: msg.color, backgroundColor: msg.bgColor }}
+                  >
+                    {msg.message}
+                  </Toast.Body>
+                </Toast>
+              ))}
+            </div>
           </div>
 
           <Form onSubmit={handleChatSubmit}>
-            <Form.Row>
-              <Col xs={10}>
-                <Form.Group controlId="message">
-                  <Form.Control
-                    type="text"
-                    placeholder="Start typing here..."
-                    value={field}
-                    onChange={() => handleChange(event, "message")}
-                  />
-                </Form.Group>
-              </Col>
+            <div className="form-row">
+              <Form.Group controlId="message">
+                <Form.Control
+                  type="text"
+                  placeholder="Start typing here..."
+                  autoComplete="off"
+                  value={field}
+                  onChange={() => handleChange(event, "message")}
+                />
+              </Form.Group>
 
-              <Col xs={2}>
-                <Button variant="primary" type="submit">
-                  Send
-                </Button>
-              </Col>
-            </Form.Row>
+              <Button variant="primary" type="submit">
+                Send
+              </Button>
+            </div>
           </Form>
 
           <Form.Text className="text-muted">

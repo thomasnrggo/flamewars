@@ -101,16 +101,7 @@ io.on("connection", (socket) => {
     } else {
       vote.votesB++;
     }
-    let voteMessage = {
-      username: "🔥 Flamewars bot 🔥",
-      color: "#0c5460",
-      bgColor: "#d1ecf1",
-      message: `Vote dome! ${vote.votesA} / ${vote.votesB}`,
-      date: new Date(),
-    };
 
-    messages.push(voteMessage);
-    socket.broadcast.emit("message", voteMessage);
     socket.broadcast.emit("vote", vote);
   });
 

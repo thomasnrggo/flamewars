@@ -50,11 +50,38 @@
   padding-bottom: 1rem;
 }
 
+.chat__wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.chat__chart {
+  width: 0;
+  height: 0;
+  transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+}
+
+.chat__chart.show {
+  margin-right: 1rem;
+  width: 100%;
+  height: 100px;
+}
+
 .chat__messages {
   margin-bottom: 2rem;
   width: 100%;
   height: 500px;
   overflow-y: scroll;
+  transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
 }
 
 .chat__messages::-webkit-scrollbar-track {
@@ -85,9 +112,63 @@
   margin-left: auto;
 }
 
+.chat .form-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+.chat .form-row .btn {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+
+.chat .form-group {
+  -webkit-box-flex: 15;
+      -ms-flex-positive: 15;
+          flex-grow: 15;
+  margin-bottom: 0;
+  margin-right: 0.5rem;
+}
+
 section,
 .footer {
   padding-top: 2rem;
   padding-bottom: 2rem;
+}
+
+@media (max-width: 992px) {
+  .chat__wrapper {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .chat__chart {
+    width: 0;
+    height: 0;
+    transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+  }
+  .chat__chart.show {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;
+    width: 50%;
+    min-width: 298px;
+    height: -webkit-fit-content;
+    height: -moz-fit-content;
+    height: fit-content;
+  }
 }
 /*# sourceMappingURL=main.css.map */
