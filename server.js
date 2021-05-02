@@ -22,7 +22,7 @@ let getVotingOption = (str) => {
 };
 
 io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
+  // console.log("a user connected", socket.id);
 
   socket.on("message", (data) => {
     const { username, message } = data;
@@ -31,6 +31,17 @@ io.on("connection", (socket) => {
 
     messages.push(data);
     socket.broadcast.emit("message", data);
+  });
+
+  socket.on("register", (data) => {
+    users.push(data);
+    socket.username = data.username;
+    socket.broadcast.emit("register", data);
+
+    console.log(
+      `🔥 Flamewars bot 🔥 => Connected users:`,
+      users.map((user) => user.username)
+    );
   });
 
   socket.on("create", (data) => {
@@ -132,12 +143,30 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", (data) => {
-    console.log("a user disconneted", socket.id);
+  socket.on("disconnect", () => {
+    console.log(`🔥 Flamewars bot 🔥 => ${socket.username} has left the chat`);
+
+    socket.broadcast.emit("user-left", socket.username);
+    users = users.filter((item) => socket.username !== item.username);
+
+    // const leftMessage = {
+    //   username: "🔥 Flamewars bot 🔥",
+    //   color: "#0c5460",
+    //   bgColor: "#d1ecf1",
+    //   message: `${socket.username} has left the chat`,
+    //   date: new Date(),
+    // };
+
+    // messages.push(leftMessage);
+    // socket.broadcast.emit("message", leftMessage);
   });
 });
 
 nextApp.prepare().then(() => {
+  app.get("/users", (req, res) => {
+    res.json(users);
+  });
+
   app.get("/messages", (req, res) => {
     res.json(messages);
   });

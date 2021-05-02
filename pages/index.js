@@ -1,5 +1,13 @@
 import React, { useEffect, useState, Fragment } from "react";
-import { Form, Button, Col, Jumbotron, Toast, Modal } from "react-bootstrap";
+import {
+  Form,
+  Button,
+  Col,
+  Jumbotron,
+  Toast,
+  Modal,
+  Badge,
+} from "react-bootstrap";
 import { BlockPicker } from "react-color";
 import { formatDistance } from "date-fns";
 import io from "socket.io-client";
@@ -24,6 +32,7 @@ export default function Homepage() {
     bgColor: "hsla(211, 100%, 95%, 0.85)",
   });
   const [votes, setVotes] = useState(null);
+  const [users, setUsers] = useState([]);
   const colorset = [
     "#007bff",
     "#6f42c1",
@@ -34,7 +43,11 @@ export default function Homepage() {
   ];
 
   useEffect(() => {
-    socket.on("message", handleMessage).on("vote", handleVotes);
+    socket
+      .on("message", handleMessage)
+      .on("vote", handleVotes)
+      .on("register", handleRegister)
+      .on("user-left", handleDisconnect);
 
     getMessages()
       .then((res) => {
@@ -44,6 +57,12 @@ export default function Homepage() {
         console.error(err);
       });
 
+    getUsers()
+      .then((response) => {
+        setUsers(response);
+      })
+      .catch((error) => console.error(error));
+
     getVotes()
       .then((res) => {
         setVotes(res);
@@ -52,6 +71,12 @@ export default function Homepage() {
         console.error(err);
       });
   }, []);
+
+  const getUsers = async () => {
+    const response = await fetch(`${ENDPOINT}/users`);
+    const users = await response.json();
+    return users;
+  };
 
   const getMessages = async () => {
     let res = await fetch(`${ENDPOINT}/messages`);
@@ -76,6 +101,14 @@ export default function Homepage() {
 
     container.scrollTo(0, container.scrollHeight);
   };
+
+  function handleRegister(data) {
+    setUsers((state) => [...state, data]);
+  }
+
+  function handleDisconnect(username) {
+    setUsers((state) => state.filter((item) => username !== item.username));
+  }
 
   function handleChange(event, form) {
     const { name, value } = event.target;
@@ -129,17 +162,23 @@ export default function Homepage() {
   }
 
   function handleLoginSubmit() {
-    const { username, color } = login;
+    const { username, color, bgColor } = login;
 
     if (username && color) {
       setShowModal(false);
-      socket.emit("message", {
-        username: "🔥 Flamewars bot 🔥",
-        color: "#0c5460",
-        bgColor: "#d1ecf1",
-        message: `${username} has entered the chat`,
-        date: new Date(),
-      });
+      socket
+        .emit("message", {
+          username: "🔥 Flamewars bot 🔥",
+          color: "#0c5460",
+          bgColor: "#d1ecf1",
+          message: `${username} has entered the chat`,
+          date: new Date(),
+        })
+        .emit("register", {
+          username,
+          color,
+          bgColor,
+        });
     }
   }
 
@@ -211,7 +250,25 @@ export default function Homepage() {
       ) : null}
 
       <section className="chat">
-        <h2>Real time chat</h2>
+        <div className="chat__users">
+          <p className="chat__label">
+            Users: <strong>{users.length}</strong>
+          </p>
+
+          <div className="chat__list">
+            {users
+              ? users.map((user, index) => (
+                  <Badge
+                    key={`user-badge-${index}`}
+                    pill
+                    style={{ color: user.color, backgroundColor: user.bgColor }}
+                  >
+                    {user.username}
+                  </Badge>
+                ))
+              : ""}
+          </div>
+        </div>
 
         <Jumbotron>
           <div className="chat__messages">

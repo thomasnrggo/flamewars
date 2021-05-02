@@ -1,3 +1,50 @@
+.chat__users {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  margin-bottom: 1rem;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.chat__users p {
+  margin-bottom: 0;
+  margin-right: 1rem;
+}
+
+.chat__list {
+  overflow-x: scroll;
+  white-space: nowrap;
+}
+
+.chat__list .badge {
+  margin-right: 0.5rem;
+}
+
+.chat__list::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #f5f5f5;
+}
+
+.chat__list::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background-color: #f5f5f5;
+}
+
+.chat__list::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #6c757d;
+}
+
 .chat .jumbotron {
   padding-top: 2rem;
   padding-bottom: 1rem;
@@ -8,6 +55,22 @@
   width: 100%;
   height: 500px;
   overflow-y: scroll;
+}
+
+.chat__messages::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #f5f5f5;
+}
+
+.chat__messages::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background-color: #f5f5f5;
+}
+
+.chat__messages::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #6c757d;
 }
 
 .chat__bubbles {
