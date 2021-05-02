@@ -1,13 +1,5 @@
 import React, { useEffect, useState, Fragment } from "react";
-import {
-  Form,
-  Button,
-  Col,
-  Jumbotron,
-  Toast,
-  Modal,
-  Badge,
-} from "react-bootstrap";
+import { Form, Button, Jumbotron, Toast, Modal, Badge } from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
 import { BlockPicker } from "react-color";
 import { formatDistance } from "date-fns";
@@ -93,6 +85,7 @@ export default function Homepage() {
 
   let handleVotes = (vote) => {
     setVotes((old) => vote);
+    setField("");
   };
 
   let handleMessage = (data) => {
@@ -154,8 +147,19 @@ export default function Homepage() {
       setField("");
     } else if (field.includes("/close")) {
       socket.emit("close", {});
+      setField("");
     } else if (field.includes("#")) {
-      socket.emit("vote", { vote: field });
+      if (votes && votes.title) {
+        if (field.includes(votes.optionA) || field.includes(votes.optionB)) {
+          socket.emit("vote", { vote: field });
+        } else {
+          socket.emit("message", data);
+          setField("");
+        }
+      } else {
+        socket.emit("message", data);
+        setField("");
+      }
     } else if (field) {
       socket.emit("message", data);
       setField("");
