@@ -44,13 +44,20 @@ io.on("connection", (socket) => {
       let optionB = options[1];
 
       let votingCreate = {
-        id: new Date().getTime(),
-        value: `New voting ${optionA} vs ${optionB}.`,
+        username: "🔥 Flamewars bot 🔥",
+        color: "#0c5460",
+        bgColor: "#d1ecf1",
+        message: `New voting started: ${optionA} vs ${optionB}`,
+        date: new Date(),
       };
       let votingUsing = {
-        id: new Date().getTime() + 2,
-        value: `vote now your favorite writing #${optionA} or #${optionB} .`,
+        username: "🔥 Flamewars bot 🔥",
+        color: "#0c5460",
+        bgColor: "#d1ecf1",
+        message: `Vote now for your favorite, writing #${optionA} or #${optionB}`,
+        date: new Date(),
       };
+
       messages.push(votingCreate);
       messages.push(votingUsing);
       vote = {
@@ -60,13 +67,17 @@ io.on("connection", (socket) => {
         votesA: 0,
         votesB: 0,
       };
+
       socket.broadcast.emit("message", votingCreate);
       socket.broadcast.emit("message", votingUsing);
       socket.broadcast.emit("vote", vote);
     } else {
-      let message = {
-        id: new Date().getTime(),
-        value: `There's a open vote, close the current one to create a new one.`,
+      const message = {
+        username: "⚠ Flamewars bot ⚠",
+        color: "#856404",
+        bgColor: "#fff3cd",
+        message: `There's a open vote, close the current one to create a new one`,
+        date: new Date(),
       };
       socket.broadcast.emit("message", message);
     }
@@ -80,9 +91,13 @@ io.on("connection", (socket) => {
       vote.votesB++;
     }
     let voteMessage = {
-      id: new Date().getTime(),
-      value: `vote dome! ${vote.votesA} / ${vote.votesB}`,
+      username: "🔥 Flamewars bot 🔥",
+      color: "#0c5460",
+      bgColor: "#d1ecf1",
+      message: `Vote dome! ${vote.votesA} / ${vote.votesB}`,
+      date: new Date(),
     };
+
     messages.push(voteMessage);
     socket.broadcast.emit("message", voteMessage);
     socket.broadcast.emit("vote", vote);
@@ -92,19 +107,26 @@ io.on("connection", (socket) => {
     let results = vote;
     if (results.title) {
       let voteMessage = {
-        id: new Date().getTime(),
-        value: `vote close! the winner is ${
+        username: "🎊 Flamewars bot 🎊",
+        color: "#155724",
+        bgColor: "#d4edda",
+        message: `Vote closed, the winner is ${
           results.votesA > results.votesB ? results.optionA : results.optionB
-        }`,
+        }!`,
+        date: new Date(),
       };
+
       vote = {};
       messages.push(voteMessage);
       socket.broadcast.emit("message", voteMessage);
       socket.broadcast.emit("vote", vote);
     } else {
       let voteMessage = {
-        id: new Date().getTime(),
-        value: `there's no vote now, create a new one with command /create`,
+        username: "⚠ Flamewars bot ⚠",
+        color: "#856404",
+        bgColor: "#fff3cd",
+        message: `There's no voting event now! create a new one with command /create option1 vs option2`,
+        date: new Date(),
       };
       socket.broadcast.emit("message", voteMessage);
     }

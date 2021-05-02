@@ -56,19 +56,16 @@ export default function Homepage() {
   const getMessages = async () => {
     let res = await fetch(`${ENDPOINT}/messages`);
     let messages = await res.json();
-    console.log("getMessages", messages);
     return messages;
   };
 
   const getVotes = async () => {
     let res = await fetch(`${ENDPOINT}/vote`);
     let votes = await res.json();
-    console.log("getVotes", votes);
     return votes;
   };
 
   let handleVotes = (vote) => {
-    console.log("handleVotes");
     setVotes((old) => vote);
   };
 
@@ -138,8 +135,8 @@ export default function Homepage() {
       setShowModal(false);
       socket.emit("message", {
         username: "🔥 Flamewars bot 🔥",
-        color: "hsla(208, 7%, 46%, 1)",
-        bgColor: "hsla(208, 7%, 95%, 0.85)",
+        color: "#0c5460",
+        bgColor: "#d1ecf1",
         message: `${username} has entered the chat`,
         date: new Date(),
       });
@@ -264,7 +261,7 @@ export default function Homepage() {
           </Form>
 
           <Form.Text className="text-muted">
-            To start a votation event, type the command{" "}
+            To start a voting event, type the command{" "}
             <code>/create option1 option2</code>. To vote between any option,
             type <code>#option1</code> or <code>#option2</code>
           </Form.Text>
