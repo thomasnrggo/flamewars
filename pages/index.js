@@ -30,8 +30,6 @@ export default function Homepage() {
   const [login, setLogin] = useState({
     username: "",
     password: "",
-    // color: "#007bff",
-    // bgColor: "hsla(211, 100%, 95%, 0.85)",
   });
   const [signin, setSignin] = useState({
     username: "",
@@ -202,10 +200,10 @@ export default function Homepage() {
     };
 
     if (field.includes("/create")) {
-      socket.emit("create", { command: field });
+      socket.emit("create", { command: field, username });
       setField("");
     } else if (field.includes("/close")) {
-      socket.emit("close", {});
+      socket.emit("close", { username });
       setField("");
     } else if (field.includes("#")) {
       if (votes && votes.title) {
