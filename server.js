@@ -40,6 +40,14 @@ let usersDB = [
     color: "#36495A",
     bgColor: "#EAEEF1",
   },
+  {
+    id: 4,
+    username: "admin",
+    password: "$2a$10$.JH92abd/UpJLL6vJ3wX5eIMpI96BqOMQo5KqhkJsroGRYC5emhiK",
+    role: "admin",
+    color: "#36495A",
+    bgColor: "#EAEEF1",
+  },
 ];
 
 let getVotingOption = (str) => {
