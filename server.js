@@ -25,11 +25,19 @@ let usersDB = [
   },
   {
     id: 2,
-    username: "Anthony 🐥",
-    password: "$2a$10$OhW7fBzBzsWELepU9lPZHu2tjgrazumGoewqKghehvyIJTEIU/r7K",
-    role: "member",
+    username: "anthony",
+    password: "$2a$10$.JH92abd/UpJLL6vJ3wX5eIMpI96BqOMQo5KqhkJsroGRYC5emhiK",
+    role: "admin",
     color: "#9B5E13",
     bgColor: "#FEF2E3",
+  },
+  {
+    id: 3,
+    username: "test user",
+    password: "$2a$10$.JH92abd/UpJLL6vJ3wX5eIMpI96BqOMQo5KqhkJsroGRYC5emhiK",
+    role: "member",
+    color: "#36495A",
+    bgColor: "#EAEEF1",
   },
 ];
 
@@ -217,6 +225,7 @@ nextApp.prepare().then(() => {
     if (userExists) {
       // const salt = bcrypt.genSaltSync(10);
       // const hash = bcrypt.hashSync(user.password, salt);
+      // console.log(hash);
 
       const isPasswdordCorrect = bcrypt.compareSync(
         user.password,
@@ -238,8 +247,6 @@ nextApp.prepare().then(() => {
     } else {
       res.status(400).send("The user does not exist.");
     }
-
-    // res.status(201).send("bar");
   });
 
   app.get("/users", (req, res) => {

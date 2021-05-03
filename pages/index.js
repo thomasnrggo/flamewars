@@ -64,6 +64,8 @@ export default function Homepage() {
       .on("register", handleRegister)
       .on("user-left", handleDisconnect);
 
+    const token = cookie.get("token");
+
     getMessages()
       .then((res) => {
         setLocalMessages(res);
@@ -85,7 +87,41 @@ export default function Homepage() {
       .catch((err) => {
         console.error(err);
       });
+
+    verifyToken(token)
+      .then((response) => {
+        const { username, color, bgColor } = response;
+        const data = { username, color, bgColor };
+
+        setShowModal(false);
+        socket
+          .emit("message", {
+            username: "🔥 Flamewars bot 🔥",
+            color: "#0c5460",
+            bgColor: "#d1ecf1",
+            message: `${username} has entered the chat`,
+            date: new Date(),
+          })
+          .emit("register", data);
+        setLogin({ ...login, username });
+
+        setTimeout(() => {
+          getUsers()
+            .then((response) => {
+              setUsers(response);
+            })
+            .catch((error) => console.error(error));
+        }, 1000);
+      })
+      .catch((error) => console.error(error));
   }, []);
+
+  async function verifyToken(token) {
+    if (token) {
+      const verify = await jwt.verify(token, `${JWT_SECRET}`);
+      return verify;
+    }
+  }
 
   const getUsers = async () => {
     const response = await fetch(`${ENDPOINT}/users`);
@@ -200,7 +236,10 @@ export default function Homepage() {
         setShowAlert(false);
 
         const { user } = response.data;
-        const token = jwt.sign({ username: user.username }, JWT_SECRET);
+        const token = jwt.sign(
+          { username: user.username, color: user.color, bgColor: user.bgColor },
+          JWT_SECRET
+        );
         const date = new Date();
         date.setTime(date.getTime() + 60 * 24 * 60 * 1000);
 
