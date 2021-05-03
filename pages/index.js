@@ -30,8 +30,6 @@ export default function Homepage() {
   const [login, setLogin] = useState({
     username: "",
     password: "",
-    // color: "#007bff",
-    // bgColor: "hsla(211, 100%, 95%, 0.85)",
   });
   const [signin, setSignin] = useState({
     username: "",
@@ -174,8 +172,8 @@ export default function Homepage() {
         break;
 
       case "admin":
-        setAdmin({
-          ...login,
+        setSignin({
+          ...signin,
           [name]: value,
         });
         break;
@@ -202,10 +200,10 @@ export default function Homepage() {
     };
 
     if (field.includes("/create")) {
-      socket.emit("create", { command: field });
+      socket.emit("create", { command: field, username });
       setField("");
     } else if (field.includes("/close")) {
-      socket.emit("close", {});
+      socket.emit("close", { username });
       setField("");
     } else if (field.includes("#")) {
       if (votes && votes.title) {
@@ -264,20 +262,68 @@ export default function Homepage() {
           });
       })
       .catch((error) => {
+        console.error(error);
         setShowAlert(true);
-        setAlertData("Error al iniciar sesión");
+        setAlertData("Error at log in");
       });
   }
 
-  function handleSigninSubmit() {}
+  function handleSigninSubmit() {
+    axios({
+      url: `${ENDPOINT}/register`,
+      method: "POST",
+      data: { ...signin },
+    })
+      .then((response) => {
+        setShowAlert(false);
+
+        const { data } = response;
+        const token = jwt.sign(
+          {
+            username: data.username,
+            color: data.color,
+            bgColor: data.bgColor,
+          },
+          JWT_SECRET
+        );
+        const date = new Date();
+        date.setTime(date.getTime() + 60 * 24 * 60 * 1000);
+
+        cookie.set("token", token, {
+          path: "/",
+          expires: date,
+        });
+
+        setShowModal(false);
+        socket
+          .emit("message", {
+            username: "🔥 Flamewars bot 🔥",
+            color: "#0c5460",
+            bgColor: "#d1ecf1",
+            message: `${data.username} has entered the chat`,
+            date: new Date(),
+          })
+          .emit("register", {
+            username: data.username,
+            color: data.color,
+            bgColor: data.bgColor,
+          });
+        setLogin({ ...login, username: data.username });
+      })
+      .catch((error) => {
+        console.error(error);
+        setShowAlert(true);
+        setAlertData("Error at register");
+      });
+  }
 
   function handleColor(color, event) {
     const { hsl } = color;
 
-    setLogin({
-      ...login,
+    setSignin({
+      ...signin,
       color: color.hex,
-      bgColor: `hsla(${hsl.h}, ${hsl.s}%, 90%, 0.9)`,
+      bgColor: `hsla(${hsl.h}, ${hsl.s}%, 95%, 1)`,
     });
   }
 
@@ -352,7 +398,7 @@ export default function Homepage() {
                   type="text"
                   placeholder="Enter your username"
                   value={signin.username}
-                  onChange={() => handleChange(event, "user")}
+                  onChange={() => handleChange(event, "admin")}
                 />
               </Form.Group>
 
@@ -364,7 +410,7 @@ export default function Homepage() {
                   type="password"
                   placeholder="Password"
                   value={signin.password}
-                  onChange={() => handleChange(event, "user")}
+                  onChange={() => handleChange(event, "admin")}
                 />
               </Form.Group>
 

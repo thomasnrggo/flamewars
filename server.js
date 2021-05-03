@@ -10,6 +10,7 @@ const nextHandler = nextApp.getRequestHandler();
 const port = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
+const getTime = require("date-fns/getTime");
 
 const messages = [];
 let vote = {};
@@ -73,53 +74,65 @@ io.on("connection", (socket) => {
   });
 
   socket.on("create", (data) => {
-    console.log(" create =>", data);
-    if (!vote.title) {
-      let command = data.command.toLowerCase();
-      let options = getVotingOption(command);
+    const isAdmin = usersDB.find((user) => data.username === user.username);
 
-      let title = command.replace("/create ", "");
-      let optionA = options[0];
-      let optionB = options[1];
+    if (isAdmin.role === "admin") {
+      console.log(" create =>", data);
+      if (!vote.title) {
+        let command = data.command.toLowerCase();
+        let options = getVotingOption(command);
 
-      let votingCreate = {
-        username: "🔥 Flamewars bot 🔥",
-        color: "#0c5460",
-        bgColor: "#d1ecf1",
-        message: `New voting started: ${optionA} vs ${optionB}`,
-        date: new Date(),
-      };
-      let votingUsing = {
-        username: "🔥 Flamewars bot 🔥",
-        color: "#0c5460",
-        bgColor: "#d1ecf1",
-        message: `Vote now for your favorite, writing #${optionA} or #${optionB}`,
-        date: new Date(),
-      };
+        let title = command.replace("/create ", "");
+        let optionA = options[0];
+        let optionB = options[1];
 
-      messages.push(votingCreate);
-      messages.push(votingUsing);
-      vote = {
-        title: title,
-        optionA: optionA,
-        optionB: optionB,
-        votesA: 0,
-        votesB: 0,
-        votants: [],
-      };
+        let votingCreate = {
+          username: "🔥 Flamewars bot 🔥",
+          color: "#0c5460",
+          bgColor: "#d1ecf1",
+          message: `New voting started: ${optionA} vs ${optionB}`,
+          date: new Date(),
+        };
+        let votingUsing = {
+          username: "🔥 Flamewars bot 🔥",
+          color: "#0c5460",
+          bgColor: "#d1ecf1",
+          message: `Vote now for your favorite, writing #${optionA} or #${optionB}`,
+          date: new Date(),
+        };
 
-      socket.broadcast.emit("message", votingCreate);
-      socket.broadcast.emit("message", votingUsing);
-      socket.broadcast.emit("vote", vote);
+        messages.push(votingCreate);
+        messages.push(votingUsing);
+        vote = {
+          title: title,
+          optionA: optionA,
+          optionB: optionB,
+          votesA: 0,
+          votesB: 0,
+          votants: [],
+        };
+
+        socket.broadcast.emit("message", votingCreate);
+        socket.broadcast.emit("message", votingUsing);
+        socket.broadcast.emit("vote", vote);
+      } else {
+        const message = {
+          username: "⚠ Flamewars bot ⚠",
+          color: "#856404",
+          bgColor: "#fff3cd",
+          message: `There's a open vote, close the current one to create a new one`,
+          date: new Date(),
+        };
+        socket.broadcast.emit("message", message);
+      }
     } else {
-      const message = {
-        username: "⚠ Flamewars bot ⚠",
-        color: "#856404",
-        bgColor: "#fff3cd",
-        message: `There's a open vote, close the current one to create a new one`,
+      socket.broadcast.emit("message", {
+        username: "❌ Flamewars bot ❌",
+        color: "#721c24",
+        bgColor: "#f8d7da",
+        message: `${isAdmin.username} doesn't have permission to create a voting event!`,
         date: new Date(),
-      };
-      socket.broadcast.emit("message", message);
+      });
     }
   });
 
@@ -163,36 +176,48 @@ io.on("connection", (socket) => {
   });
 
   socket.on("close", (data) => {
-    let results = vote;
-    if (results.title) {
-      let voteMessage = {
-        username: "🎊 Flamewars bot 🎊",
-        color: "#155724",
-        bgColor: "#d4edda",
-        message: `Vote closed, the winner is ${
-          results.votesA > results.votesB ? results.optionA : results.optionB
-        }!`,
-        date: new Date(),
-      };
+    const isAdmin = usersDB.find((user) => data.username === user.username);
 
-      vote = {};
-      messages.push(voteMessage);
-      socket.broadcast.emit("message", voteMessage);
-      socket.broadcast.emit("vote", vote);
-      console.log(
-        `🔥 Flamewars bot 🔥 => The winner of the votation is 🎊 ${
-          results.votesA > results.votesB ? results.optionA : results.optionB
-        }!!!`
-      );
+    if (isAdmin.role === "admin") {
+      let results = vote;
+      if (results.title) {
+        let voteMessage = {
+          username: "🎊 Flamewars bot 🎊",
+          color: "#155724",
+          bgColor: "#d4edda",
+          message: `Vote closed, the winner is ${
+            results.votesA > results.votesB ? results.optionA : results.optionB
+          }!`,
+          date: new Date(),
+        };
+
+        vote = {};
+        messages.push(voteMessage);
+        socket.broadcast.emit("message", voteMessage);
+        socket.broadcast.emit("vote", vote);
+        console.log(
+          `🔥 Flamewars bot 🔥 => The winner of the votation is 🎊 ${
+            results.votesA > results.votesB ? results.optionA : results.optionB
+          }!!!`
+        );
+      } else {
+        let voteMessage = {
+          username: "⚠ Flamewars bot ⚠",
+          color: "#856404",
+          bgColor: "#fff3cd",
+          message: `There's no voting event now! create a new one with command /create option1 vs option2`,
+          date: new Date(),
+        };
+        socket.broadcast.emit("message", voteMessage);
+      }
     } else {
-      let voteMessage = {
-        username: "⚠ Flamewars bot ⚠",
-        color: "#856404",
-        bgColor: "#fff3cd",
-        message: `There's no voting event now! create a new one with command /create option1 vs option2`,
+      socket.broadcast.emit("message", {
+        username: "❌ Flamewars bot ❌",
+        color: "#721c24",
+        bgColor: "#f8d7da",
+        message: `${isAdmin.username} doesn't have permission to close a event voting!`,
         date: new Date(),
-      };
-      socket.broadcast.emit("message", voteMessage);
+      });
     }
   });
 
@@ -223,10 +248,6 @@ nextApp.prepare().then(() => {
     const userExists = usersDB.find((item) => user.username === item.username);
 
     if (userExists) {
-      // const salt = bcrypt.genSaltSync(10);
-      // const hash = bcrypt.hashSync(user.password, salt);
-      // console.log(hash);
-
       const isPasswdordCorrect = bcrypt.compareSync(
         user.password,
         userExists.password
@@ -246,6 +267,30 @@ nextApp.prepare().then(() => {
       }
     } else {
       res.status(400).send("The user does not exist.");
+    }
+  });
+
+  app.post("/register", (req, res) => {
+    const user = req.body;
+    const userExists = usersDB.find((item) => user.username === item.username);
+
+    if (userExists) {
+      res.status(400).send("This user has been registered");
+    } else {
+      const generateId = getTime(new Date());
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(user.password, salt);
+      const data = {
+        id: generateId,
+        username: user.username,
+        password: hash,
+        role: "member",
+        color: user.color,
+        bgColor: user.bgColor,
+      };
+
+      usersDB.push(data);
+      res.status(201).send(data);
     }
   });
 
