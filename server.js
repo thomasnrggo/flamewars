@@ -10,6 +10,7 @@ const nextHandler = nextApp.getRequestHandler();
 const port = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
+const getTime = require("date-fns/getTime");
 
 const messages = [];
 let vote = {};
@@ -247,10 +248,6 @@ nextApp.prepare().then(() => {
     const userExists = usersDB.find((item) => user.username === item.username);
 
     if (userExists) {
-      // const salt = bcrypt.genSaltSync(10);
-      // const hash = bcrypt.hashSync(user.password, salt);
-      // console.log(hash);
-
       const isPasswdordCorrect = bcrypt.compareSync(
         user.password,
         userExists.password
@@ -270,6 +267,30 @@ nextApp.prepare().then(() => {
       }
     } else {
       res.status(400).send("The user does not exist.");
+    }
+  });
+
+  app.post("/register", (req, res) => {
+    const user = req.body;
+    const userExists = usersDB.find((item) => user.username === item.username);
+
+    if (userExists) {
+      res.status(400).send("This user has been registered");
+    } else {
+      const generateId = getTime(new Date());
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(user.password, salt);
+      const data = {
+        id: generateId,
+        username: user.username,
+        password: hash,
+        role: "member",
+        color: user.color,
+        bgColor: user.bgColor,
+      };
+
+      usersDB.push(data);
+      res.status(201).send(data);
     }
   });
 
