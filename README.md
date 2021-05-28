@@ -75,12 +75,14 @@ You can view the latest build for the app [here](https://flamewars-master.heroku
 
 This software uses the following open source packages:
 
-- [Node.js](https://nodejs.org/)
-- [Express.js](https://expressjs.com/)
-- [Next.js](https://nextjs.org/)
-- [React.js](https://reactjs.org/)
-- [Socket.io](https://socket.io/)
-- [Heroku](https://www.heroku.com/) (Deployment)
+- [Socket.io 4.0](https://socket.io/) • Websockets for the real time messages in chat
+- [Node.js 15](https://nodejs.org/) • Needed for mounting the server for sockets
+- [Express.js 4.17](https://expressjs.com/) • Needed for mounting the server for sockets
+- [Next.js 10.1](https://nextjs.org/) • For learning purposes
+- [React.js 17.0](https://reactjs.org/) • Building the UI
+- [Heroku](https://www.heroku.com/) • Deployment
+
+With the supervision of [Erik Ochoa](https://twitter.com/Elyager), Academic Coach at [Platzi Master](https://platzi.com/master/)
 
 ## You may also like...
 
@@ -90,5 +92,15 @@ This software uses the following open source packages:
 
 This app was created with 💚 by:
 
-- [Anthony Gonzalez](https://github.com/thomasnrggo) 🇲🇽
-- [Juan Daniel Martínez](https://juanda.dev) 🇲🇽
+> Anthony Gonzalez &nbsp;&middot;&nbsp;
+> [thomasnrggo.com](https://thomasnrggo.com) &nbsp;&middot;&nbsp;
+> Web Designer &nbsp;&middot;&nbsp;
+> Frontend Developer &nbsp;&middot;&nbsp;
+> GitHub [@thomasnrggo](https://github.com/thomasnrggo) &nbsp;&middot;&nbsp;
+> Twitter [@thomasnrggo](https://twitter.com/thomasnrggo)
+
+> Juan Daniel Martínez &nbsp;&middot;&nbsp;
+> [juanda.dev](https://juanda.dev) &nbsp;&middot;&nbsp;
+> Frontend Developer &nbsp;&middot;&nbsp;
+> GitHub [@juandadev](https://github.com/juandadev) &nbsp;&middot;&nbsp;
+> Twitter [@juanda_dev_](https://twitter.com/juanda_dev_)
